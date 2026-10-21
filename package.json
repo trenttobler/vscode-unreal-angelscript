@@ -181,6 +181,14 @@
                     ],
                     "description": "Glob patterns to ignore when searching for script files to parse."
                 },
+                "UnrealAngelscript.excludeWorkspaceFolderNames": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "default": [],
+                    "description": "Names of workspace folders that are not searched for script files or used as script roots. Takes effect after reloading the window."
+                },
                 "UnrealAngelscript.codeLenses.showCreateBlueprintClasses": {
                     "type": "array",
                     "default": [

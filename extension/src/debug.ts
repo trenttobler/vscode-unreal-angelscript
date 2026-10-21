@@ -900,9 +900,12 @@ export class ASDebugSession extends LoggingDebugSession
 
     private gatherRootPaths() : Array<string>
     {
+        let excludedFolderNames : string[] = vscode.workspace.getConfiguration("UnrealAngelscript").get("excludeWorkspaceFolderNames") || [];
         let roots = [];
         for (let workspaceFolder of vscode.workspace.workspaceFolders)
         {
+            if (excludedFolderNames.includes(workspaceFolder.name))
+                continue;
             roots.push(workspaceFolder.uri.fsPath);
         }
         return roots;

@@ -35,6 +35,9 @@ export function activate(context: ExtensionContext) {
         debug: { module: serverModule, transport: TransportKind.ipc, options: debugOptions }
     }
 
+    // Settings the server needs for its initial script scan
+    let initConfig = workspace.getConfiguration("UnrealAngelscript");
+
     // Options to control the language client
     let clientOptions: LanguageClientOptions = {
         // Register the server for plain text documents
@@ -42,7 +45,11 @@ export function activate(context: ExtensionContext) {
         synchronize: {
             fileEvents: workspace.createFileSystemWatcher('**/*.as'),
             configurationSection: "UnrealAngelscript",
-        }
+        },
+        initializationOptions: {
+            excludeWorkspaceFolderNames: initConfig.get("excludeWorkspaceFolderNames"),
+            scriptIgnorePatterns: initConfig.get("scriptIgnorePatterns"),
+        },
     }
 
     console.log("Activate angelscript extension");

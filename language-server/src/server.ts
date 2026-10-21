@@ -297,13 +297,26 @@ let RootUris : string[] = [];
 
 // These should all be optional extras, i.e. the server should still function normally if it's undefined.
 type InitializationOptions = {
-    additionalScriptRootFolders?: WorkspaceFolder[]
+    additionalScriptRootFolders?: WorkspaceFolder[],
+    excludeWorkspaceFolderNames?: string[],
+    scriptIgnorePatterns?: string[],
 } | undefined;
 
 // After the server has started the client sends an initialize request. The server receives
 // in the passed params the rootPath of the workspace plus the client capabilities.
 connection.onInitialize((_params): InitializeResult => {
     shouldSendDiagnosticRelatedInformation = _params.capabilities && _params.capabilities.textDocument && _params.capabilities.textDocument.publishDiagnostics && _params.capabilities.textDocument.publishDiagnostics.relatedInformation;
+
+    const initializationOptions = _params.initializationOptions as InitializationOptions;
+
+    const excludedFolderNames = initializationOptions?.excludeWorkspaceFolderNames || [];
+    const shouldSkipFolder = (folder : WorkspaceFolder) : boolean =>
+    {
+        if (!excludedFolderNames.includes(folder.name))
+            return false;
+        connection.console.log("Ignoring workspace folder '" + folder.name + "' (" + URI.parse(folder.uri).fsPath + "): listed in UnrealAngelscript.excludeWorkspaceFolderNames");
+        return true;
+    };
 
     let Roots = [];
 
@@ -312,12 +325,12 @@ connection.onInitialize((_params): InitializeResult => {
         RootUris.push(decodeURIComponent(_params.rootUri));
     } else {
         for (let Workspace of _params.workspaceFolders) {
+            if (shouldSkipFolder(Workspace))
+                continue;
             Roots.push(URI.parse(Workspace.uri).fsPath);
             RootUris.push(decodeURIComponent(Workspace.uri));
         }
     }
-
-    const initializationOptions = _params.initializationOptions as InitializationOptions;
 
     const additionalFolders = initializationOptions?.additionalScriptRootFolders;
     if (additionalFolders) {
@@ -340,7 +353,7 @@ connection.onInitialize((_params): InitializeResult => {
     for (let RootPath of Roots)
     {
         let globOptions: glob.IOptions = {
-            ignore: settings?.scriptIgnorePatterns || []
+            ignore: initializationOptions?.scriptIgnorePatterns || []
         };
         glob(RootPath + "/**/*.as", globOptions, function (err: any, files: any)
         {
@@ -362,6 +375,10 @@ connection.onInitialize((_params): InitializeResult => {
             scriptlenses.LoadFileTemplates(files);
         });
     }
+
+    // No glob callback will start the queues if every folder was excluded
+    if (GlobsRemaining <= 0)
+        TickQueues();
 
     setTimeout(DetectUnrealConnectionTimeout, 20000)
 
@@ -613,6 +630,11 @@ scriptdiagnostics.OnDiagnosticsChanged( function (uri : string, diagnostics : Ar
 connection.onDidChangeWatchedFiles((_change) => {
     for(let change of _change.changes)
     {
+        // Excluded workspace folders are still watched by the client
+        let changedUri = decodeURIComponent(change.uri);
+        if (!RootUris.some(rootUri => changedUri.startsWith(rootUri)))
+            continue;
+
         let module = scriptfiles.GetOrCreateModule(getModuleName(change.uri), getPathName(change.uri), change.uri);
         if (module)
         {
