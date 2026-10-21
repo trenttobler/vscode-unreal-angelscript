@@ -1,5 +1,19 @@
 Language Server and Debug Adapter for use with the UnrealEngine-Angelscript plugin from https://angelscript.hazelight.se
 
+## Magic Soup Inc. Build
+This is a Magic Soup Inc. build of Hazelight's Unreal Angelscript extension 1.9.4,
+published under its own identifier (`magicsoup.unreal-angelscript`) so Hazelight
+releases do not replace it. Uninstall `hazelight.unreal-angelscript` before
+installing it; the two cannot run side by side.
+
+Source: https://github.com/trenttobler/vscode-unreal-angelscript, branch `magicsoup`.
+
+Changes from Hazelight's 1.9.4:
+- Added `UnrealAngelscript.excludeWorkspaceFolderNames`: workspace folders with
+  these names are not scanned for scripts or used as script roots by the language
+  server or the debugger. Each excluded folder is reported in the language server output.
+- Fixed `UnrealAngelscript.scriptIgnorePatterns` not applying to the initial script scan.
+
 ## Getting Started
 After building or downloading the Unreal Editor version with Angelscript
 enabled from the github page linked above, start the editor and use visual

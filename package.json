@@ -1,9 +1,9 @@
 {
     "name": "unreal-angelscript",
-    "displayName": "Unreal Angelscript",
+    "displayName": "Unreal Angelscript (Magic Soup Inc.)",
     "description": "Language Server and Debug Adapter for use with the UnrealEngine-Angelscript plugin from https://github.com/Hazelight/UnrealEngine-Angelscript",
     "version": "1.9.4",
-    "publisher": "Hazelight",
+    "publisher": "magicsoup",
     "icon": "resources/angelscript_unreal.png",
     "engines": {
         "vscode": "^1.65.0"
@@ -18,7 +18,7 @@
     ],
     "repository": {
         "type": "git",
-        "url": "https://github.com/Hazelight/vscode-unreal-angelscript"
+        "url": "https://github.com/trenttobler/vscode-unreal-angelscript"
     },
     "main": "./extension/dist/extension.js",
     "contributes": {
